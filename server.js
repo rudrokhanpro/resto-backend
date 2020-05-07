@@ -9,6 +9,7 @@ mongoose.connect(MONGODB_URL, {
   useCreateIndex: true,
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  dbName: "resto",
 });
 
 mongoose.connection.on("error", () =>
@@ -33,5 +34,10 @@ server.use(compression());
 server.get("/", (req, res) =>
   res.status(200).json({ message: "Hello Express" }),
 );
+
+// Router
+const v1_router = require("./v1/router");
+
+server.use(v1_router);
 
 module.exports = server;
