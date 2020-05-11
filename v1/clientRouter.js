@@ -59,7 +59,7 @@ async function getClientById(req, res, next) {
 }
 
 clientRouter
-  .route("/id/:id")
+  .route("/id/:_id")
 
   // GET
   .get(getClientById, async (req, res) => {
