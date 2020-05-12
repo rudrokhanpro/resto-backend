@@ -6,9 +6,7 @@ const Clients = require("../models/Clients");
 
 /* ------------------------------- ALL CLIENTS ------------------------------ */
 
-clientRouter
-  .route("/")
-  .get(async (req, res) => {
+clientRouter.route("/").get(async (req, res) => {
   const clients = await Clients.find();
 
   res.status(STATUS.OK).json({
@@ -18,15 +16,13 @@ clientRouter
 
 /* --------------------------------- SEARCH --------------------------------- */
 
-clientRouter
-  .route("/search/lastname/:lastname")
-  .get(async (req, res) => {
-    const clients = await Clients.findByLastname(req.params.lastname || "");
+clientRouter.route("/search/lastname/:lastname").get(async (req, res) => {
+  const clients = await Clients.findByLastname(req.params.lastname || "");
 
-    res.status(STATUS.OK).json({
-      clients,
-    });
+  res.status(STATUS.OK).json({
+    clients,
   });
+});
 
 clientRouter
   .route("/search/phone_number/:phone_number")
@@ -48,10 +44,7 @@ clientRouter
 async function getClientById(req, res, next) {
   const client = await Clients.findOneById(req.params._id);
 
-  if (client === null) 
-    res
-      .status(STATUS.NOT_FOUND)
-      .json({ client });
+  if (client === null) res.status(STATUS.NOT_FOUND).json({ client });
   else {
     req.client = client;
     next();
@@ -65,6 +58,25 @@ clientRouter
   .get(getClientById, async (req, res) => {
     res.status(STATUS.OK).json({
       client: req.client,
+    });
+  })
+
+  // PUT
+  .put(getClientById, async (req, res) => {
+    const client = req.client;
+
+    Clients.updateOne(
+      { _id: client._id },
+      {
+        $set: {
+          ...req.body,
+        },
+      },
+    ).then((results) => {
+      console.log(results);
+      res.status(STATUS.OK).json({
+        client: req.body,
+      });
     });
   })
 
@@ -82,25 +94,23 @@ clientRouter
 
 /* ------------------------------- NEW CLIENT ------------------------------- */
 
-clientRouter
-  .route("/new")
-  .post(async (req, res) => {
-    const client = new Clients(req.body);
+clientRouter.route("/new").post(async (req, res) => {
+  const client = new Clients(req.body);
 
-    try {
-      await client.save();
+  try {
+    await client.save();
 
-      res.status(STATUS.SUCCESS).json({
-        client,
-      });
-    } catch (error) {
-      console.log(error);
-      res.json({
-        error: error.name,
-        message: error.message,
-        client: null,
-      });
-    }
-  });
+    res.status(STATUS.SUCCESS).json({
+      client,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      error: error.name,
+      message: error.message,
+      client: null,
+    });
+  }
+});
 
 module.exports = clientRouter;
